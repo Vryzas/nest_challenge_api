@@ -1,0 +1,50 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  username  String   @id
+  email     String   @unique
+  password  String
+  createdAt DateTime @default(now())
+  Stat      Stat[]
+  Match     Match[] @relation("Match")
+  Match2     Match[] @relation("Match2")
+
+  @@map("users")
+
+  @@unique([username, email])
+}
+
+model Stat {
+  username  String @id
+  victories Int    @default(0)
+  defeats   Int    @default(0)
+  draws     Int    @default(0)
+
+  user User @relation(fields: [username], references: [username], onDelete: Cascade)
+
+  @@map("stats")
+}
+
+model Match {
+  id     Int    @id
+  game   String
+  score1 Int
+  score2 Int
+
+  player1    User   @relation("Match",fields: [username1], references: [username], onDelete: Cascade)
+  player2    User  @relation("Match2", fields: [username2], references: [username], onDelete: Cascade)
+  username1 String
+  username2 String
+
+  @@map("matches")
+}
